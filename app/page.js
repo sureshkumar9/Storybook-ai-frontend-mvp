@@ -1,7 +1,11 @@
+import Chatbot from "../components/Chatbot";
+
 export default function Home() {
     return (
-        <div>
-            <h1>Hello World</h1>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40 }}>
+            <div style={{ marginTop: 32 }}>
+                <Chatbot />
+            </div>
         </div>
-    )
+    );
 }
