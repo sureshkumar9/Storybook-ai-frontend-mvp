@@ -2,8 +2,8 @@ import Chatbot from "../components/Chatbot";
 
 export default function Home() {
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: 40 }}>
-            <div style={{ marginTop: 32 }}>
+        <div className="flex flex-col items-center mt-10">
+            <div className="mt-8 w-full max-w-md">
                 <Chatbot />
             </div>
         </div>
