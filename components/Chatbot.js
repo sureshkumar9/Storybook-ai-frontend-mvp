@@ -1,12 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import Fuse from "fuse.js";
 
 export default function Chatbot() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
-  const messagesEndRef = useRef(null);
 
   const mockData = [
     "hello",
@@ -18,9 +17,10 @@ export default function Chatbot() {
     "help me",
   ];
 
+  // Configure Fuse.js
   const fuse = new Fuse(mockData, {
     includeScore: true,
-    threshold: 0.4,
+    threshold: 0.4, // lower = stricter, higher = looser
   });
 
   const findBestMatch = (userInput) => {
@@ -49,60 +49,47 @@ export default function Chatbot() {
     };
 
     setMessages((msgs) => [...msgs, userMessage, botMessage]);
+
     setInput("");
   };
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
-
   return (
-    <div className="border border-gray-300 rounded-lg p-5 max-w-md w-full bg-white shadow-md">
-      <div className="text-xl font-bold mb-4 text-center text-gray-800">
-        AI Assistant
-      </div>
-
-      <div className="min-h-[200px] max-h-[400px] overflow-y-auto mb-4 p-2 bg-gray-50 rounded-lg">
-        {messages.length === 0 && (
-          <div className="text-center text-gray-400 mt-12">
-            Start a conversation...
-          </div>
-        )}
-
+    <div className="border border-gray-300 rounded-lg p-4 max-w-md w-full">
+      <div className="min-h-[120px] mb-3 flex flex-col gap-1">
         {messages.map((msg, idx) => (
           <div
             key={idx}
-            className={`flex my-2 ${
-              msg.sender === "user" ? "justify-end" : "justify-start"
-            }`}
+            className={msg.sender === "user" ? "text-right" : "text-left"}
           >
-            <div
-              className={`rounded-2xl px-4 py-2 max-w-[70%] break-words ${
-                msg.sender === "user"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
+            <span
+              className={
+                (msg.sender === "user"
+                  ? "bg-cyan-100"
+                  : "bg-lime-100") +
+                " rounded px-2 py-1 inline-block my-0.5"
+              }
             >
               {msg.text}
-            </div>
+            </span>
           </div>
         ))}
-
-        <div ref={messagesEndRef} />
       </div>
 
-      <form onSubmit={handleSend} className="flex gap-2">
+      <form
+        onSubmit={handleSend}
+        className="flex gap-2"
+      >
         <input
           type="text"
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          className="flex-1 p-3 rounded-full border border-gray-300 outline-none focus:ring-2 focus:ring-blue-400"
+          placeholder="Type a message..."
+          className="flex-1 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <button
           type="submit"
-          className="px-5 py-3 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+          className="px-4 py-2 rounded bg-blue-700 text-white hover:bg-blue-800 transition-colors"
         >
           Send
         </button>
