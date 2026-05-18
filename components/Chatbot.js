@@ -1,35 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+
+import React, { useState, useMemo } from "react";
 import Fuse from "fuse.js";
 
-export default function Chatbot() {
+export default function Chatbot({ contextData = [] }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
 
-  const mockData = [
-    "hello",
-    "how are you",
-    "what is your name",
-    "bye",
-    "good morning",
-    "good night",
-    "help me",
-  ];
-
-  // Configure Fuse.js
-  const fuse = new Fuse(mockData, {
+  // Only use contextData for Fuse.js
+  const fuse = useMemo(() => new Fuse(contextData, {
     includeScore: true,
-    threshold: 0.4, // lower = stricter, higher = looser
-  });
+    threshold: 0.4,
+  }), [contextData]);
 
   const findBestMatch = (userInput) => {
+    if (!contextData || contextData.length === 0) {
+      return "Sorry, I don't understand.";
+    }
     const results = fuse.search(userInput);
-
     if (results.length > 0) {
       return results[0].item;
     }
-
     return "Sorry, I don't understand.";
   };
 
