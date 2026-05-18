@@ -9,6 +9,28 @@ First, install dependencies:
 npm install
 ```
 
+Make sure Ollama is running locally:
+
+```bash
+ollama serve
+```
+
+In another terminal, pull the default model:
+
+```bash
+ollama pull qwen2.5-coder:1.5b
+```
+
+If Ollama is already running as a desktop app or service, you only need to pull
+the model.
+
+You can override the local model or host with `.env.local`:
+
+```bash
+OLLAMA_MODEL=qwen2.5-coder:1.5b
+OLLAMA_HOST=http://127.0.0.1:11434
+```
+
 Then, run the development server:
 
 ```bash
