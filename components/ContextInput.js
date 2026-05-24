@@ -5,14 +5,49 @@ import React, { useState } from "react";
 export default function ContextInput({ onContextChange }) {
   const [input, setInput] = useState("");
   const [contextList, setContextList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleAdd = (e) => {
+
+  const handleAdd = async (e) => {
     e.preventDefault();
+
     if (!input.trim()) return;
+
     const updated = [...contextList, input.trim()];
-    setContextList(updated);
+
     setInput("");
-    if (onContextChange) onContextChange(updated);
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch("http://localhost:8000/context", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contexts: updated,
+        }),
+      });
+
+      const result = await res.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to save context");
+      }
+
+      setContextList(result.data);
+
+      if (onContextChange) {
+        onContextChange(result.data);
+      }
+
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -26,10 +61,11 @@ export default function ContextInput({ onContextChange }) {
           placeholder="Enter context phrase..."
           className="flex-1 p-2 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
-        <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">
-          Add
+        <button type="submit" className="px-4 py-2 rounded bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors" disabled={loading}>
+          {loading ? "Saving..." : "Add"}
         </button>
       </form>
+      {error && <div className="text-red-600 text-sm mb-2">{error}</div>}
       <div className="text-sm text-gray-700">
         <span className="font-medium">Current Context:</span>
         <ul className="list-disc pl-5 mt-1">
