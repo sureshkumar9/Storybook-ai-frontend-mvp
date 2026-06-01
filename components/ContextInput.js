@@ -51,7 +51,7 @@ export default function ContextInput({ onContextChange }) {
   };
 
   return (
-    <div className="bg-white border border-gray-200 shadow rounded-xl p-4 max-w-md w-full mx-auto mb-6">
+    <div className="bg-white border border-gray-200 shadow rounded-xl p-4 w-full mx-auto mb-6">
       <h3 className="text-lg font-semibold mb-2 text-blue-700">Add Context Items</h3>
       <form onSubmit={handleAdd} className="flex gap-2 mb-2">
         <input

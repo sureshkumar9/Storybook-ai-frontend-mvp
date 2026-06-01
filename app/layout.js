@@ -1,4 +1,5 @@
 import './globals.css'
+import Sidebar from '../components/Sidebar'
 
 export const metadata = {
     title: 'Next.js',
@@ -8,7 +9,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
     return (
         <html lang="en" className="h-full">
-            <body className="h-full overflow-hidden">{children}</body>
+            <body className="h-full overflow-hidden">
+                <Sidebar />
+
+                <main className="ml-72 h-screen overflow-auto bg-gray-50 p-6">
+                    {children}
+                </main>
+            </body>
         </html>
     )
 }

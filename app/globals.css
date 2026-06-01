@@ -20,3 +20,20 @@ a {
 * {
     box-sizing: border-box;
 }
+
+/* Resizable Panels Styling */
+[data-panel-group-direction="horizontal"] > div:nth-child(odd) {
+    cursor: col-resize;
+}
+
+[data-panel-group-direction="horizontal"] > [data-panel-resize-handle] {
+    width: 4px;
+    background: linear-gradient(to bottom, transparent, #cbd5e1, transparent);
+    transition: all 0.2s ease;
+}
+
+[data-panel-group-direction="horizontal"] > [data-panel-resize-handle]:hover {
+    width: 6px;
+    background: linear-gradient(to bottom, transparent, #3b82f6, transparent);
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.3);
+}
