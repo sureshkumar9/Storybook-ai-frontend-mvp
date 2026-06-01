@@ -9,29 +9,44 @@ const suggestions = [
   "Build a data table",
 ];
 
-export default function Chatbot({ contextData = [], onMessagesChange }) {
+export default function Chatbot({ contextData = null, onMessagesChange }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
 
+  const searchItems = useMemo(() => {
+    if (Array.isArray(contextData)) {
+      return contextData;
+    }
+    if (contextData && typeof contextData === "object") {
+      return [JSON.stringify(contextData)];
+    }
+    if (typeof contextData === "string") {
+      return [contextData];
+    }
+    return [];
+  }, [contextData]);
+
   const fuse = useMemo(
     () =>
-      new Fuse(contextData, {
+      new Fuse(searchItems, {
         includeScore: true,
         threshold: 0.4,
       }),
-    [contextData]
+    [searchItems]
   );
 
   const findBestMatch = (userInput) => {
-    if (!contextData || contextData.length === 0) {
-      return "Sorry, I don't understand.";
+    if (!searchItems || searchItems.length === 0) {
+      return `I received your prompt and generated a response based on your request.`;
     }
+
     const results = fuse.search(userInput);
     if (results.length > 0) {
-      return results[0].item;
+      return `I generated a response using saved context data. Relevant context found: ${results[0].item}`;
     }
-    return "Sorry, I don't understand.";
+
+    return `I generated a response using your prompt and the current saved context data.`;
   };
 
   const addMessages = (newMessages) => {
@@ -52,9 +67,15 @@ export default function Chatbot({ contextData = [], onMessagesChange }) {
       sender: "user",
       text: input,
     };
+
+    const prompt = input.trim();
+    const contextSummary = searchItems.length
+      ? `\n\nSaved context:\n${JSON.stringify(contextData, null, 2)}`
+      : "";
+
     const botMessage = {
       sender: "bot",
-      text: findBestMatch(input),
+      text: `${findBestMatch(prompt)}${contextSummary}`,
     };
 
     addMessages([userMessage, botMessage]);

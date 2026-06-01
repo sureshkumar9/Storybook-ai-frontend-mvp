@@ -1,16 +1,46 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Group as PanelGroup, Panel, Separator as PanelResizeHandle } from "react-resizable-panels";
 import Chatbot from "../components/Chatbot";
-import ContextInput from "../components/ContextInput";
 import CodePanel from "../components/CodePanel";
 import PreviewPanel from "../components/PreviewPanel";
+import ContextDataButton from "../components/ContextDataButton";
+import ContextDataModal from "../components/ContextDataModal";
+
+const CONTEXT_STORAGE_KEY = "storybook-context-data";
+const SAMPLE_CONTEXT = `{
+  "users": [
+    { "id": 1, "name": "John Doe", "email": "john@example.com", "role": "Admin" },
+    { "id": 2, "name": "Jane Smith", "email": "jane@example.com", "role": "Editor" }
+  ],
+  "products": [
+    { "id": 1, "title": "Product A", "price": 29.99 },
+    { "id": 2, "title": "Product B", "price": 49.99 }
+  ]
+}`;
 
 export default function Home() {
-    const [contextData, setContextData] = useState([]);
+    const [contextData, setContextData] = useState(null);
+    const [contextJson, setContextJson] = useState("");
+    const [isContextModalOpen, setIsContextModalOpen] = useState(false);
+    const [contextError, setContextError] = useState("");
+    const [contextSuccess, setContextSuccess] = useState("");
     const [generatedCode, setGeneratedCode] = useState("// Chat to generate component code here.");
     const [previewText, setPreviewText] = useState("Ask the assistant to generate a component preview.");
+
+    useEffect(() => {
+        if (typeof window === "undefined") return;
+        const stored = window.localStorage.getItem(CONTEXT_STORAGE_KEY);
+        if (stored) {
+            setContextJson(stored);
+            try {
+                setContextData(JSON.parse(stored));
+            } catch (error) {
+                setContextData(null);
+            }
+        }
+    }, []);
 
     const handleMessagesUpdate = (messages) => {
         const lastBotMessage = [...messages].reverse().find((msg) => msg.sender === "bot");
@@ -18,6 +48,47 @@ export default function Home() {
             setGeneratedCode(`// Generated code from last response:\n${lastBotMessage.text}`);
             setPreviewText(lastBotMessage.text);
         }
+    };
+
+    const handleOpenContextModal = () => {
+        setContextError("");
+        setContextSuccess("");
+        setIsContextModalOpen(true);
+    };
+
+    const handleCloseContextModal = () => {
+        setIsContextModalOpen(false);
+    };
+
+    const handleSaveContext = () => {
+        try {
+            const parsed = contextJson.trim() ? JSON.parse(contextJson) : null;
+            setContextData(parsed);
+            if (parsed === null) {
+                window.localStorage.removeItem(CONTEXT_STORAGE_KEY);
+            } else {
+                window.localStorage.setItem(CONTEXT_STORAGE_KEY, contextJson);
+            }
+            setContextError("");
+            setContextSuccess("Context data saved successfully.");
+        } catch (error) {
+            setContextError("Invalid JSON. Please fix formatting and try again.");
+            setContextSuccess("");
+        }
+    };
+
+    const handleClearContext = () => {
+        setContextJson("");
+        setContextData(null);
+        window.localStorage.removeItem(CONTEXT_STORAGE_KEY);
+        setContextError("");
+        setContextSuccess("Context data cleared.");
+    };
+
+    const handleInsertSampleData = () => {
+        setContextJson(SAMPLE_CONTEXT);
+        setContextError("");
+        setContextSuccess("");
     };
 
     return (
@@ -31,10 +102,14 @@ export default function Home() {
                 </header>
 
                 <PanelGroup direction="horizontal" className="flex-1 overflow-hidden">
-                    {/* Chatbot Panel - 30% */}
                     <Panel defaultSize={30} minSize={20} maxSize={50}>
-                        <div className="flex h-full flex-col space-y-4 overflow-hidden p-4">
-                            <ContextInput onContextChange={setContextData} />
+                        <div className="flex h-full flex-col overflow-hidden p-4">
+                            <div className="mb-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                                <h2 className="text-base font-semibold text-slate-900">Context-aware chat</h2>
+                                <p className="mt-1 text-sm text-slate-500">
+                                    Use the context data modal to store JSON that will be passed along with your component prompts.
+                                </p>
+                            </div>
                             <div className="flex-1 min-h-0 overflow-hidden">
                                 <Chatbot contextData={contextData} onMessagesChange={handleMessagesUpdate} />
                             </div>
@@ -43,7 +118,6 @@ export default function Home() {
 
                     <PanelResizeHandle />
 
-                    {/* Code Panel - 40% */}
                     <Panel defaultSize={40} minSize={25} maxSize={60}>
                         <div className="h-full overflow-hidden p-4">
                             <CodePanel code={generatedCode} />
@@ -52,7 +126,6 @@ export default function Home() {
 
                     <PanelResizeHandle />
 
-                    {/* Preview Panel - 30% */}
                     <Panel defaultSize={30} minSize={20} maxSize={50}>
                         <div className="h-full overflow-hidden p-4">
                             <PreviewPanel previewText={previewText} />
@@ -60,6 +133,19 @@ export default function Home() {
                     </Panel>
                 </PanelGroup>
             </div>
+
+            <ContextDataButton onOpen={handleOpenContextModal} />
+            <ContextDataModal
+                open={isContextModalOpen}
+                onClose={handleCloseContextModal}
+                jsonValue={contextJson}
+                onJsonChange={setContextJson}
+                onInsertSample={handleInsertSampleData}
+                onClear={handleClearContext}
+                onSave={handleSaveContext}
+                error={contextError}
+                success={contextSuccess}
+            />
         </main>
     );
 }
