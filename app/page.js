@@ -24,8 +24,6 @@ export default function Home() {
     const [contextData, setContextData] = useState(null);
     const [contextJson, setContextJson] = useState("");
     const [isContextModalOpen, setIsContextModalOpen] = useState(false);
-    const [contextError, setContextError] = useState("");
-    const [contextSuccess, setContextSuccess] = useState("");
     const [generatedCode, setGeneratedCode] = useState("// Chat to generate component code here.");
     const [previewText, setPreviewText] = useState("Ask the assistant to generate a component preview.");
 
@@ -50,45 +48,27 @@ export default function Home() {
         }
     };
 
-    const handleOpenContextModal = () => {
-        setContextError("");
-        setContextSuccess("");
-        setIsContextModalOpen(true);
+    const handleSaveContextFromModal = (text) => {
+        const plain = text ?? "";
+        setContextJson(plain);
+        setContextData(plain);
     };
 
-    const handleCloseContextModal = () => {
-        setIsContextModalOpen(false);
-    };
+    const openContextModal = () => setIsContextModalOpen(true);
+    const closeContextModal = () => setIsContextModalOpen(false);
 
     const handleSaveContext = () => {
-        try {
-            const parsed = contextJson.trim() ? JSON.parse(contextJson) : null;
-            setContextData(parsed);
-            if (parsed === null) {
-                window.localStorage.removeItem(CONTEXT_STORAGE_KEY);
-            } else {
-                window.localStorage.setItem(CONTEXT_STORAGE_KEY, contextJson);
-            }
-            setContextError("");
-            setContextSuccess("Context data saved successfully.");
-        } catch (error) {
-            setContextError("Invalid JSON. Please fix formatting and try again.");
-            setContextSuccess("");
-        }
+        // Save in-memory only (plain text)
+        setContextData(contextJson);
     };
 
     const handleClearContext = () => {
         setContextJson("");
         setContextData(null);
-        window.localStorage.removeItem(CONTEXT_STORAGE_KEY);
-        setContextError("");
-        setContextSuccess("Context data cleared.");
     };
 
     const handleInsertSampleData = () => {
         setContextJson(SAMPLE_CONTEXT);
-        setContextError("");
-        setContextSuccess("");
     };
 
     return (
@@ -134,18 +114,8 @@ export default function Home() {
                 </PanelGroup>
             </div>
 
-            <ContextDataButton onOpen={handleOpenContextModal} />
-            <ContextDataModal
-                open={isContextModalOpen}
-                onClose={handleCloseContextModal}
-                jsonValue={contextJson}
-                onJsonChange={setContextJson}
-                onInsertSample={handleInsertSampleData}
-                onClear={handleClearContext}
-                onSave={handleSaveContext}
-                error={contextError}
-                success={contextSuccess}
-            />
+            <ContextDataButton onOpen={openContextModal} />
+            <ContextDataModal open={isContextModalOpen} onClose={closeContextModal} onSave={handleSaveContextFromModal} />
         </main>
     );
 }
