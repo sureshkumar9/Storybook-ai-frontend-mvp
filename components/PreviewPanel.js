@@ -1,6 +1,71 @@
+"use client";
 
+import { useEffect, useRef } from "react";
 
-export default function PreviewPanel({ previewText = "Live preview will appear here." }) {
+export default function PreviewPanel({ previewText = "Live preview will appear here.", previewCode = "" }) {
+  const iframeRef = useRef(null);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const doc = iframe.contentDocument || iframe.contentWindow.document;
+
+    const baseStyles = `
+      body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; padding: 12px; background: transparent; }
+      .preview-root { display: block; }
+    `;
+
+    // Clean markdown fences if present
+    const cleanedCode = previewCode.replace(/^```(?:jsx|tsx|javascript|js)?\n?/i, "").replace(/\n?```$/, "");
+
+    // If previewCode is empty, show previewText
+    if (!cleanedCode.trim()) {
+      doc.open();
+      doc.write(`<!doctype html>
+        <html>
+          <head><meta charset="utf-8"><style>${baseStyles}</style></head>
+          <body><div class="preview-root">${previewText}</div></body>
+        </html>`);
+      doc.close();
+      return;
+    }
+
+    // Otherwise, render as JSX using Babel + UMD React
+    const reactScript = "https://unpkg.com/react@18/umd/react.development.js";
+    const reactDomScript = "https://unpkg.com/react-dom@18/umd/react-dom.development.js";
+    const babelScript = "https://unpkg.com/@babel/standalone/babel.min.js";
+
+    const html = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8" />
+          <style>${baseStyles}</style>
+        </head>
+        <body>
+          <div id="root"></div>
+          <script src="${reactScript}"></script>
+          <script src="${reactDomScript}"></script>
+          <script src="${babelScript}"></script>
+          <script type="text/babel">
+            try {
+              ${cleanedCode}
+              const root = ReactDOM.createRoot(document.getElementById('root'));
+              root.render(React.createElement(Preview));
+            } catch (err) {
+              document.body.innerHTML = '<pre style="color: red;">' + err.toString() + '</pre>';
+            }
+          </script>
+        </body>
+      </html>
+    `;
+
+    doc.open();
+    doc.write(html);
+    doc.close();
+  }, [previewCode, previewText]);
+
   return (
     <div className="flex h-full min-h-0 flex-col rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-4">
@@ -9,24 +74,12 @@ export default function PreviewPanel({ previewText = "Live preview will appear h
       </div>
 
       <div className="flex-1 min-h-0 overflow-auto rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-4">
-        <div className="space-y-5">
-          <div className="rounded-2xl bg-white p-5 shadow-sm">
-            <div className="mb-3">
-              <span className="inline-flex rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold text-blue-800">
-                Preview Mode
-              </span>
-            </div>
-            <h3 className="text-lg font-semibold text-slate-900">Generated UI</h3>
-            <p className="mt-2 text-sm text-slate-600">{previewText}</p>
-          </div>
-
-          <div className="rounded-3xl border border-slate-200 bg-gradient-to-br from-sky-50 to-white p-5">
-            <div className="rounded-2xl bg-white p-4 shadow-sm">
-              <h4 className="text-base font-semibold text-slate-900">Preview Card</h4>
-              <p className="mt-2 text-sm text-slate-600">This panel updates automatically when the chat assistant generates a component or story preview.</p>
-            </div>
-          </div>
-        </div>
+        <iframe
+          ref={iframeRef}
+          title="preview-iframe"
+          className="w-full h-64 rounded-md border"
+          sandbox="allow-scripts allow-same-origin"
+        />
       </div>
     </div>
   );
