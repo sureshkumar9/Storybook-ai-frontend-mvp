@@ -94,20 +94,20 @@ export default function Chatbot({
   }, [messages, loading]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-3xl border border-gray-300 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <div>
-          <h2 className="text-xl font-semibold text-slate-900">
-            AI Component Generator
-          </h2>
-
-          <p className="text-sm text-slate-500">
-            Generate Storybook-ready React components using AI.
-          </p>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-4">
+        <div className="mb-1 inline-flex rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">
+          Chat
         </div>
+        <h2 className="text-xl font-semibold text-slate-900">
+          AI Component Generator
+        </h2>
+        <p className="text-sm text-slate-500">
+          Generate Storybook-ready React components using AI.
+        </p>
       </div>
 
-      <div className="flex min-h-0 flex-col gap-4 overflow-hidden rounded-3xl border border-slate-200 bg-slate-50 p-4">
+      <div className="flex min-h-0 flex-col gap-4 mt-auto">
         <div className="min-h-0 flex-1 overflow-y-auto px-1 py-2">
           {messages.length === 0 ? (
             <p className="text-sm text-slate-500">
@@ -155,17 +155,19 @@ export default function Chatbot({
         </div>
 
         <div className="space-y-3 border-t border-slate-200 pt-4">
-          <div className="flex flex-wrap gap-2">
-            {suggestions.map((suggestion) => (
-              <button
-                key={suggestion}
-                type="button"
-                onClick={() => setInput(suggestion)}
-                className="rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-100"
-              >
-                {suggestion}
-              </button>
-            ))}
+          <div className="overflow-x-auto pb-1">
+            <div className="flex min-w-[100%] gap-2">
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion}
+                  type="button"
+                  onClick={() => setInput(suggestion)}
+                  className="flex-shrink-0 rounded-full border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-100"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
           </div>
 
           <form
