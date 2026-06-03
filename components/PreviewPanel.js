@@ -67,17 +67,17 @@ export default function PreviewPanel({ previewText = "Live preview will appear h
   }, [previewCode, previewText]);
 
   return (
-    <div className="flex h-full min-h-0 flex-col rounded-3xl border border-gray-200 bg-white p-5 shadow-sm">
+    <div className="flex h-full min-h-0 flex-col rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="mb-4">
         <h2 className="text-xl font-semibold text-slate-900">Live Preview</h2>
         <p className="text-sm text-slate-500">View generated UI output in a responsive preview panel.</p>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-auto rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-4">
+      <div className="flex h-full min-h-0 overflow-hidden rounded-[28px] border border-dashed border-slate-200 bg-slate-50 p-4">
         <iframe
           ref={iframeRef}
           title="preview-iframe"
-          className="w-full h-64 rounded-md border"
+          className="w-full h-full rounded-md border"
           sandbox="allow-scripts allow-same-origin"
         />
       </div>
