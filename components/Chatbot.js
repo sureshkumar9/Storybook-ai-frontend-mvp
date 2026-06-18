@@ -12,6 +12,8 @@ const suggestions = [
 export default function Chatbot({
   contextData = [],
   onMessagesChange,
+  onStoryCreated,
+
 }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -65,6 +67,24 @@ export default function Chatbot({
       }
 
       const data = await response.json();
+
+      // Save generated component + story
+      const saveResponse = await fetch("/api/create-story", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: data.output,
+        }),
+      });
+
+      const saveData = await saveResponse.json();
+      if (saveData.storyUrl && onStoryCreated) {
+        onStoryCreated(saveData.storyUrl);
+      }
+
+      console.log("Storybook component created:", saveData);
 
       addMessages([
         {

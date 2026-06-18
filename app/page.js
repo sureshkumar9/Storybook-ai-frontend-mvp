@@ -13,6 +13,7 @@ export default function Home() {
     const [generatedCode, setGeneratedCode] = useState("// Chat to generate component code here.");
     const [previewText, setPreviewText] = useState("Ask the assistant to generate a component preview.");
     const [previewCode, setPreviewCode] = useState("");
+    const [storyUrl, setStoryUrl] = useState("");
 
     // const handleMessagesUpdate = (messages) => {
     //     const lastBotMessage = [...messages].reverse().find((msg) => msg.sender === "bot");
@@ -78,7 +79,7 @@ export default function Home() {
                                 <p className="mt-1 text-sm text-slate-500">Use the chat panel to prompt AI and generate component code.</p>
                             </div>
                             <div className="flex-1 min-h-0 overflow-hidden p-6">
-                                <Chatbot contextData={contextData} onMessagesChange={handleMessagesUpdate} />
+                                <Chatbot contextData={contextData} onStoryCreated={setStoryUrl} onMessagesChange={handleMessagesUpdate} />
                             </div>
                         </section>
 
@@ -87,7 +88,7 @@ export default function Home() {
                         </div>
 
                         <div className="flex min-h-0 w-full flex-col lg:w-[30%]">
-                            <PreviewPanel previewCode={previewCode} previewText={previewText} />
+                            <PreviewPanel storyUrl={storyUrl} previewText={previewText} />
                         </div>
                     </div>
                 </div>
