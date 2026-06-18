@@ -14,11 +14,15 @@ export async function POST(req) {
     const prompt = `
 You are a senior React + Storybook engineer.
 
-Return ONLY code.
 
-Generate:
-1. Button.tsx
-2. Button.stories.tsx
+Return ONLY valid React component code.
+
+Requirements:
+- Export default component
+- No markdown
+- No explanations
+- No code fences
+- JSX only
 
 User request:
 ${message}
